@@ -18,8 +18,6 @@ type TCollection = {
 }[];
 
 export const Collection = () => {
-  const [collectionData, setCollectionData] = useState<TCollection>([]);
-
   const [catgories, setCatgories] = useState<any>({});
 
   const [counter, setCounter] = useState(0);
@@ -57,8 +55,6 @@ export const Collection = () => {
       }
 
       setCatgories({ ...catgories });
-
-      setCollectionData(data.data);
     } catch (err) {
       console.log(err);
     }
@@ -67,12 +63,6 @@ export const Collection = () => {
   useEffect(() => {
     getCollection();
   }, []);
-  useEffect(() => {
-    console.log(collectionData, "data");
-    console.log(catgories, "dataObject");
-
-    console.log(Object.entries(catgories));
-  }, [collectionData]);
 
   return (
     <>

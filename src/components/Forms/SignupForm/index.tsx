@@ -27,6 +27,7 @@ const initialValues = {
 
 const validationSchema = Yup.object().shape({
   firstName: Yup.string().required("First Name is required "),
+
   lastName: Yup.string().required("Last Name is required "),
   address: Yup.string().required("Address is required "),
   email: Yup.string()
@@ -42,14 +43,24 @@ const validationSchema = Yup.object().shape({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
       "Password must contain at least one uppercase letter, one lowercase letter, and one number"
     ),
+  pincode: Yup.string()
+    .matches(/^[0-9]{6}$/, "Pincode must be a 6-digit number")
+    .required("Pincode is required"),
+  city: Yup.string().required("Please Select City "),
+  state: Yup.string().required("Please Select State"),
+  country: Yup.string().required("Please Select Country "),
+
   confirmPassword: Yup.string()
     .required("Confirm Password is required")
     .oneOf([Yup.ref("password")], "Confirm password must same as password"),
 });
 
 export const SignupForm = () => {
-  const [countryId, setCountryId] = useState();
+  const [countryISOCode, setcountryISOCode] = useState("");
+  const [stateISOCode, setStateISOCode] = useState("");
   const [countryState, setCountryState] = useState<any>([]);
+  const [stateCities, setStateCities] = useState<any>([]);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const formik = useFormik({
@@ -70,19 +81,28 @@ export const SignupForm = () => {
 
   const handleSelectCountry = (e: any) => {
     console.log(e.target.value);
-    setCountryId(e.target.value);
+    formik.setFieldValue("country", e.target.value);
+    setcountryISOCode(e.target.value);
   };
 
-  // const STATE = State.getAllStates();
+  const handleSelectState = (e: any) => {
+    formik.setFieldValue("state", e.target.value);
 
-  // useEffect(() => {
-  //   const getState = STATE.find((state) => {
-  //     return state.isoCode === countryId;
-  //   });
-  //   setCountryState(getState);
+    setStateISOCode(e.target.value);
+  };
 
-  //   console.log(getState, "state");
-  // }, [countryId]);
+  useEffect(() => {
+    const getState = State.getAllStates().filter(
+      (state) => state.countryCode === countryISOCode
+    );
+    setCountryState(getState);
+  }, [countryISOCode]);
+
+  useEffect(() => {
+    const city = City.getCitiesOfState(countryISOCode, stateISOCode);
+
+    setStateCities(city);
+  }, [stateISOCode]);
 
   return (
     <>
@@ -154,23 +174,66 @@ export const SignupForm = () => {
               </div>
             </div>
             <div className="flex w-full justify-center items-center gap-3">
-              <SelectBox
-                label="Country"
-                dataSet={Country.getAllCountries()}
-                handleSelect={(e) => handleSelectCountry(e)}
-              />
-              <SelectBox label="State" />
+              <div className="flex flex-col gap-2 w-full">
+                <SelectBox
+                  label="Country"
+                  dataSet={Country.getAllCountries()}
+                  value={formik.values.country}
+                  handleSelect={(e) => handleSelectCountry(e)}
+                />
+                {formik.touched.country && formik.errors.country && (
+                  <div className="text-red-600 flex justify-start items-start">
+                    {formik.errors.country}
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col gap-2 w-full">
+                <SelectBox
+                  label="State"
+                  dataSet={countryState}
+                  value={formik.values.state}
+                  handleSelect={(e) => handleSelectState(e)}
+                />
+                {formik.touched.state && formik.errors.state && (
+                  <div className="text-red-600 flex justify-start items-start">
+                    {formik.errors.state}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex w-full justify-center items-center gap-3">
-              <SelectBox label="City" />
-              <InputField
-                type="text"
-                placeholder="pincode"
-                label="Pincode"
-                name="pincode"
-                value={formik.values.pincode}
-                handleChange={formik.handleChange}
-              />
+              <div className="flex flex-col gap-2 w-full">
+                <SelectBox
+                  label="City"
+                  dataSet={stateCities}
+                  value={formik.values.city}
+                  handleSelect={(e) => {
+                    formik.setFieldValue("city", e.target.value);
+                  }}
+                />
+
+                {formik.touched.city && formik.errors.city && (
+                  <div className="text-red-600 flex justify-start items-start">
+                    {formik.errors.country}
+                  </div>
+                )}
+              </div>
+              <div className="flex flex-col gap-2 w-full">
+                <InputField
+                  type="text"
+                  placeholder="pincode"
+                  label="Pincode"
+                  name="pincode"
+                  value={formik.values.pincode}
+                  handleChange={formik.handleChange}
+                />
+
+                {formik.touched.pincode && formik.errors.pincode && (
+                  <div className="text-red-600 flex justify-start items-start">
+                    {formik.errors.pincode}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex w-full justify-center items-start gap-3">
               <div className="flex flex-col gap-2 w-full">

@@ -1,8 +1,10 @@
 type TSelectProps = {
   label: string;
+  dataSet?: any[];
+  handleSelect?: (e: any) => void;
 };
 
-export const SelectBox = ({ label }: TSelectProps) => {
+export const SelectBox = ({ label, handleSelect, dataSet }: TSelectProps) => {
   return (
     <>
       <div className="flex flex-col w-full justify-start items-start">
@@ -13,14 +15,18 @@ export const SelectBox = ({ label }: TSelectProps) => {
           {label}
         </label>
         <select
-          id="countries"
+          onChange={handleSelect}
           className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 "
         >
           <option selected>Choose a country</option>
-          <option value="US">United States</option>
-          <option value="CA">Canada</option>
-          <option value="FR">France</option>
-          <option value="DE">Germany</option>
+
+          {dataSet?.map((count, ind) => {
+            return (
+              <option value={count.isoCode} key={ind}>
+                {count.name}
+              </option>
+            );
+          })}
         </select>
       </div>
     </>

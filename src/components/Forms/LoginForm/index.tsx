@@ -2,16 +2,40 @@ import { Button } from "../../Shared/Button";
 import { InputField } from "../../Shared/InputField";
 import { useFormik } from "formik";
 
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import { useSelector } from "react-redux";
+
+import { useUserData } from "../../../store/slices/userData";
+import { useNavigate } from "react-router";
+
 const initialValues = {
   email: "",
   password: "",
 };
 
 export const LoginForm = () => {
+  const SignupData: any = useSelector(useUserData);
+  const navigate = useNavigate();
+  console.log(SignupData);
   const formik = useFormik({
     initialValues,
     onSubmit: (values) => {
       console.log(values);
+
+      if (
+        values.email === SignupData.email &&
+        values.password === SignupData.password
+      ) {
+        console.log("logged in");
+        toast.success("Successfully, logged in");
+        setTimeout(() => {
+          navigate("/collection");
+        }, 2000);
+      } else {
+        toast.success("Invalid Credentials");
+      }
     },
   });
 
@@ -40,10 +64,11 @@ export const LoginForm = () => {
             />
           </div>
           <div className="w-full">
-            <Button hadleClick={formik.handleSubmit} />
+            <Button btnLabel="Login" hadleClick={formik.handleSubmit} />
           </div>
         </div>
       </div>
+      <ToastContainer />
     </>
   );
 };

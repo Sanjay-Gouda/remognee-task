@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Card } from "../../components/Shared/Card";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { handleAddToCart, useAddCart } from "../../store/slices/cart";
+import { removeCartItem } from "../../store/slices/cart";
+import { useSelector } from "react-redux";
 
 type TRate = {
   rate: number;
@@ -19,30 +23,38 @@ type TCollection = {
 
 export const Collection = () => {
   const [catgories, setCatgories] = useState<any>({});
+  const [collectionData, setCollectionData] = useState<TCollection>([]);
+  const cart = useSelector(useAddCart);
 
   const [counter, setCounter] = useState(0);
   const [showCounter, setShowCounter] = useState(false);
+  const dispatch = useDispatch();
 
-  const handleAddToCart = () => {
-    setCounter((prev) => prev + 1);
-    setShowCounter(true);
+  const handleAddCart = (id: any) => {
+    const cartItem: any = collectionData?.find((item) => item.id === id);
+
+    dispatch(handleAddToCart(cartItem));
+
+    // setCounter((prev) => prev + 1);
+    // setShowCounter(true);
+    console.log(cartItem);
   };
 
   const incrementCounter = () => {
     setCounter((prev) => prev + 1);
   };
 
-  const decrementCounter = () => {
-    setCounter((prev) => prev - 1);
-    if (counter === 1) {
-      setShowCounter(false);
-    }
+  const decrementCounter = (id: any) => {
+    const cartItem: any = collectionData?.find((item) => item.id === id);
+
+    dispatch(removeCartItem(cartItem));
   };
 
   const getCollection = async () => {
     try {
       const data = await axios.get("https://fakestoreapi.com/products");
 
+      setCollectionData(data?.data);
       for (let i = 0; i < data?.data.length; i++) {
         const item = data?.data[i];
         const category = item?.category;
@@ -74,18 +86,19 @@ export const Collection = () => {
               <h3 className="text-2xl font-bold capitalize">{cat[0]}</h3>
               <div className="flex flex-wrap gap-4  w-full">
                 {cat[1].map((data: any) => {
-                  console.log(data, "data");
                   return (
                     <Card
                       key={data.id}
+                      productId={data.id}
                       title={data?.title}
                       price={data?.price}
                       image={data?.image}
-                      addCart={handleAddToCart}
+                      addCart={() => {
+                        handleAddCart(data.id);
+                      }}
                       counter={counter}
-                      decrement={decrementCounter}
+                      decrement={() => decrementCounter(data.id)}
                       incremnet={incrementCounter}
-                      isShowCounter={showCounter}
                     />
                   );
                 })}

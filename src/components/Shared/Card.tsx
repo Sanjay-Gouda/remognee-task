@@ -1,26 +1,31 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+
+import { useAddCart } from "../../store/slices/cart";
+import { useSelector } from "react-redux";
 
 type TCardProps = {
   title: string;
+  productId: string;
   price: number;
   image: string;
   counter: number;
-  isShowCounter: boolean;
   addCart: () => void;
   incremnet: () => void;
   decrement: () => void;
 };
 
 export const Card = ({
-  isShowCounter,
   title,
   price,
   image,
   addCart,
   counter,
   decrement,
+  productId,
   incremnet,
 }: TCardProps) => {
+  const cart = useSelector(useAddCart);
+
   return (
     <>
       <div className="w-full max-w-xs shadow-xl flex flex-col justify-between bg-white border border-gray-200 rounded-lg shadow ">
@@ -34,12 +39,11 @@ export const Card = ({
         </div>
 
         <div className="px-5 pb-5">
-          <a href="#">
-            <h5 className="text-lg  font-semibold tracking-tight text-gray-900">
-              {/* Apple Watch Series 7 GPS, Aluminium Case, Starlight Sport */}
-              {title}
-            </h5>
-          </a>
+          <h5 className="text-lg  font-semibold tracking-tight text-gray-900">
+            {/* Apple Watch Series 7 GPS, Aluminium Case, Starlight Sport */}
+            {title}
+          </h5>
+
           <div className="flex items-center mt-2.5 mb-5">
             <svg
               className="w-4 h-4 text-yellow-300 mr-1"
@@ -95,7 +99,7 @@ export const Card = ({
               Rs.{Math.round(price)}
             </span>
 
-            {!isShowCounter ? (
+            {!cart?.[productId]?.count ? (
               <>
                 <button
                   onClick={addCart}
@@ -118,12 +122,12 @@ export const Card = ({
                   </button>
 
                   <div className=" w-full justify-center focus:outline-none text-center w-full bg-gray-300 font-semibold text-md hover:text-black focus:text-black  md:text-basecursor-default flex items-center text-gray-700  outline-none">
-                    {counter}
+                    {cart?.[productId].count}
                   </div>
 
                   <button
                     data-action="increment"
-                    onClick={incremnet}
+                    onClick={addCart}
                     className="bg-gray-300 text-gray-600 hover:text-gray-700 hover:bg-gray-400 h-full w-20 rounded-r cursor-pointer"
                   >
                     <span className="m-auto text-2xl font-thin">+</span>
